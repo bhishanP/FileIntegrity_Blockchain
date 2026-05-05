@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Integrity Monitor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🔐 Blockchain File Integrity Monitor</h1>
+
+    <div class="card status-card">
+        <h2>Status</h2>
+        <span class="badge {{ 'safe' if status=='SAFE' else 'danger' }}">
+            {{ status }}
+        </span>
+    </div>
+
+    <div class="card">
+        <h3>🌳 Current Merkle Root</h3>
+        <p class="hash">{{ root }}</p>
+    </div>
+
+    <div class="actions">
+        <form method="post" action="/add_block">
+            <button class="btn primary">➕ Add Block</button>
+        </form>
+
+        <a href="/refresh">
+            <button class="btn secondary">🔄 Refresh</button>
+        </a>
+    </div>
+
+    <div class="card">
+        <h3>⛓️ Blockchain</h3>
+
+        <div class="blockchain">
+            {% for block in chain %}
+                <div class="block">
+                    <p><strong>Block {{ block.index }}</strong></p>
+                    <p class="small">Root:</p>
+                    <p class="hash">{{ block.merkle_root }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
