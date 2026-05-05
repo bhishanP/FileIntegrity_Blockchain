@@ -1,52 +1,122 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>File Integrity Monitor</title>
     <link rel="stylesheet" href="/static/style.css">
+
+    <!-- vis.js -->
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 </head>
+
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <h1>🔐 Blockchain File Integrity Monitor</h1>
+        <h1>🔐 Blockchain File Integrity Monitor</h1>
 
-    <div class="card status-card">
-        <h2>Status</h2>
-        <span class="badge {{ 'safe' if status=='SAFE' else 'danger' }}">
-            {{ status }}
-        </span>
-    </div>
+        <!-- STATUS -->
+        <div class="card status-card">
+            <h2>Status</h2>
+            <span class="badge {{ 'safe' if status=='SAFE' else 'danger' }}">
+                {{ status }}
+            </span>
 
-    <div class="card">
-        <h3>🌳 Current Merkle Root</h3>
-        <p class="hash">{{ root }}</p>
-    </div>
+            {% if changed_file %}
+            <div class="alert">
+                ⚠️ {{ changed_file }}
+            </div>
+            {% endif %}
+        </div>
 
-    <div class="actions">
-        <form method="post" action="/add_block">
-            <button class="btn primary">➕ Add Block</button>
-        </form>
+        <div class="card">
+            <h3>🔗 Blockchain Integrity</h3>
 
-        <a href="/refresh">
-            <button class="btn secondary">🔄 Refresh</button>
-        </a>
-    </div>
+            <span class="badge {{ 'safe' if is_valid else 'danger' }}">
+                {{ "VALID" if is_valid else "CORRUPTED" }}
+            </span>
 
-    <div class="card">
-        <h3>⛓️ Blockchain</h3>
+            <p class="small">✔ Auto-validated on every refresh</p>
+        </div>
 
-        <div class="blockchain">
-            {% for block in chain %}
-                <div class="block">
-                    <p><strong>Block {{ block.index }}</strong></p>
-                    <p class="small">Root:</p>
-                    <p class="hash">{{ block.merkle_root }}</p>
-                </div>
-            {% endfor %}
+        <!-- MERKLE ROOT -->
+        <div class="card">
+            <h3>🌳 Current Merkle Root</h3>
+            <p class="hash">{{ root }}</p>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="actions">
+            <form method="post" action="/add_block">
+                <button class="btn primary">➕ Add Block</button>
+            </form>
+
+            <a href="/refresh">
+                <button class="btn secondary">🔄 Refresh</button>
+            </a>
+
+            <form method="post" action="/reset" onsubmit="return confirm('Reset blockchain?');">
+                <button class="btn danger">🧹 Reset Chain</button>
+            </form>
+        </div>
+
+        <!-- GRAPH -->
+        <div class="card">
+            <h3>⛓️ Blockchain Network Graph</h3>
+            <div id="network"></div>
         </div>
     </div>
 
-</div>
+
+    <!-- MODAL -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h2>🔍 Block Details</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+
+            <div class="modal-body">
+                <p><strong>Block:</strong> <span id="modal-block"></span></p>
+
+                <div class="modal-section">
+                    <p class="label">Merkle Root</p>
+                    <p class="hash" id="modal-root"></p>
+                </div>
+
+                <div class="modal-section">
+                    <p class="label">Previous Hash</p>
+                    <p class="hash" id="modal-prev"></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- DATA FROM FLASK -->
+    <script>
+        const blockchainData = {{ chain | tojson }};
+        const systemStatus = "{{ status }}";
+    </script>
+
+    <!-- GRAPH SCRIPT -->
+    <script src="/static/graph.js"></script>
+
+    <!-- MODAL SCRIPT -->
+    <script>
+        function openModal(index, root, prev) {
+            document.getElementById("modal").style.display = "flex";
+            document.getElementById("modal-block").textContent = index;
+            document.getElementById("modal-root").textContent = root;
+            document.getElementById("modal-prev").textContent = prev;
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+    </script>
 
 </body>
+
 </html>
