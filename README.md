@@ -190,6 +190,7 @@ This project aligns with:
 ## 👨‍💻 Author
 
 **Bhishan Pangeni**
+**Aadarsha Agrawal**
 
 ---
 
